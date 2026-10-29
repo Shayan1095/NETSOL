@@ -413,6 +413,34 @@ tr:last-child td{border-bottom:0}
 }
 @media (max-width:420px){.top .demo{display:none}.stepper span{min-width:62px;font-size:.84rem}.stepper button{width:30px}}
 @media (max-width:370px){.top .wordmark{font-size:0;gap:0}.top{gap:6px}}
+/* simple layout */
+.tiles2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (min-width:900px){.tiles2{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.tiles2.t4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.tile2{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile2 span{font-size:.76rem;color:var(--muted)} .tile2 b{font-size:1.05rem;font-weight:600;overflow-wrap:anywhere}
+.t4 .tile2{padding:9px 8px;align-items:center;text-align:center}
+.tile2.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.block{display:flex;flex-direction:column;gap:4px}
+.block-h{display:flex;justify-content:space-between;align-items:baseline}
+.filters2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px}
+.filters2 .sel{width:100%}
+.dcard{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.dc-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.dc-top b{font-weight:600;display:block} .dc-top small{font-size:.8rem;color:var(--muted)}
+.dc-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.dc-stats span{display:block;font-size:.72rem;color:var(--muted)} .dc-stats b{font-weight:600;font-size:.98rem}
+.dc-note{font-size:.84rem;background:var(--bg-2);border-radius:8px;padding:8px 10px}
+.dc-note.bad{background:var(--neg-bg);color:var(--neg)}
+details.more summary{margin-top:0}
+@media (max-width:899px){
+  .content{gap:18px;padding-block:14px 20px}
+  .hero{padding:16px;gap:12px;margin-inline:0;border-radius:16px}
+  .hero-big{font-size:2.1rem;margin-top:2px}
+  .hleg{display:none}
+  .ph .sub{display:none}
+  h1{font-size:1.3rem}
+}
 /* charts */
 .lg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted);margin:2px 0 14px}
 .lg span{display:inline-flex;align-items:center;gap:6px}
@@ -963,7 +991,7 @@ function vCash(){
     ${areaNames.map(a=>{const v=tAll.byArea[a];return `<tr><td><button class="linkbtn" data-area="${esc(a)}">${esc(a)}</button></td><td>${fmt(v.expected)}</td><td>${fmt(v.received)}</td><td>${fmt(v.held)}</td><td class="pos"><b style="font-weight:500">${fmt(v.paid)}</b></td><td class="${v.gap?'neg':''}">${fmt(v.gap)}</td><td class="${v.unexplained?'neg':'faint'}">${fmt(v.unexplained)}</td></tr>`}).join('')}
     <tr><td><b>Total</b></td><td><b>${fmt(tAll.expected)}</b></td><td><b>${fmt(tAll.received)}</b></td><td><b>${fmt(tAll.held)}</b></td><td class="pos"><b>${fmt(tAll.paid)}</b></td><td class="neg"><b>${fmt(tAll.gap)}</b></td><td class="neg"><b>${fmt(tAll.unexplained)}</b></td></tr>
     </tbody></table></div></section>`;
-  return head + areaTable + collectorCards() + `
+  return head + `
   ${ui.age ? `<div class="note" style="align-items:center">${svg('info')}<span style="flex:1">Showing everyone who has had an unpaid amount for <b>${AGE[ui.age][0]}</b>, across all months, oldest first.</span><button class="btn btn-sm" data-age="${ui.age}">Clear</button></div>` : ''}
   <div class="filters" style="grid-template-columns:1fr"><input class="inp" id="q" type="search" placeholder="Search name or username${A?' in '+esc(A):''}" value="${esc(ui.q)}" autocomplete="off" aria-label="Search"></div>
   ${ui.age?'':`<div class="utabs" role="group" aria-label="Status">${tab('unpaid','Not paid')}${tab('credit','Credit')}${tab('collected','With sub-dealer')}${tab('received','In your hand')}${tab('all','All')}</div>`}
@@ -1398,8 +1426,7 @@ function cashHero(t, A){
       <div class="hero-ring">${ring(pctOf(t.paid,t.expected), 92, 9, 'var(--h-pos)', 'var(--h-line)', 'received')}<span>received</span></div>
     </div>
     ${heroBar(t)}
-    <div class="aging"><span class="hero-cap" style="margin:0">Remaining, by age (all months)</span>
-      ${Object.entries(AGE).map(([k,[l,f]])=>{ const xs = ag.filter(x=>f(x.d)); return `<button class="agechip ${ui.age===k?'on':''}" data-age="${k}"><span>${l}</span><b class="num">${fmtK(sum(xs,x=>x.s.owes))}</b><small>${xs.length} recharges</small></button>`; }).join('')}</div>
+
   </section>`;
 }
 function collectorCards(){
@@ -1604,6 +1631,100 @@ function vReportsDealer(){
     <div class="stat"><span class="label">Remaining</span><b class="neg">${fmt(t.owes)}</b><small>${fmt(t.explained)} with reason</small></div>
   </div>
   <section class="panel">${REPORTS.filter(r=>DEALER_REPORTS.includes(r[0])).map(([k,tt,d])=>`<div class="rep"><span class="t"><b>${tt}</b><small>${d.replace(/ and owner decision|, owner decision/,'')}</small></span><span class="acts"><button class="btn btn-sm" data-report="${k}">Preview</button><button class="btn btn-sm btn-p" data-dl="${k}">${svg('export')}CSV</button></span></div>`).join('')}</section>`;
+}
+
+/* ---------- SIMPLE LAYOUTS (override the busier versions) ---------- */
+function vHome(){
+  if(!isOwner()) return vMyDay();
+  const t = totals(S.month);
+  const pend = S.handovers.filter(h=>h.status==='pending');
+  const todo = [];
+  pend.forEach(h=>todo.push(['warn','hand',`Confirm ${h.by}'s cash`, fmt(h.amount),'cash','handovers']));
+  if(t.unpaidOld) todo.push(['bad','customers',`${t.unpaidOld} not paid for over 7 days`, fmt(t.unexplained),'cash','collect']);
+  S.dealers.forEach(d=>{ const s = dealerStats(d.name); if(s.left<0) todo.push(['bad','dealers',`${d.name}: credit missing`, fmt(-s.left),'dealers']); });
+  const unassigned = S.customers.filter(c=>c.area==='Unassigned').length;
+  if(unassigned) todo.push(['warn','pin',`${unassigned} customers need an area`,'','customers','noarea']);
+  return `
+  <section class="hero">
+    <div class="hero-top"><div class="hero-txt"><div class="hero-eye">${monthName(S.month)}</div>
+      <div class="hero-cap" style="margin-top:8px">Remaining to collect</div><div class="hero-big num">${fmt(t.gap)}</div>
+      <div class="hero-sub num">Collected ${fmt(t.paid)} of ${fmt(t.expected)}</div></div>
+      <div class="hero-ring">${ring(pctOf(t.paid,t.expected), 76, 8, 'var(--h-pos)', 'var(--h-line)', 'collected')}</div></div>
+    <div class="hero-acts"><button class="hbtn pri" data-act="pay">${svg('pay')}Record payment</button><button class="hbtn" data-act="import">${svg('import')}Monthly update</button></div>
+  </section>
+  <div class="tiles2 num">
+    <button class="tile2" data-go="cash" data-arg="collect"><span>In your hand</span><b class="pos">${fmt(t.received)}</b></button>
+    <button class="tile2" data-go="cash" data-arg="handovers"><span>With sub-dealers</span><b>${fmt(t.held)}</b></button>
+    <div class="tile2"><span>Profit if all paid</span><b>${fmt(t.profitIfAll)}</b></div>
+    <div class="tile2"><span>Expenses</span><b>${fmt(t.expenses)}</b></div>
+  </div>
+  ${todo.length ? `<section class="block"><h2>To do</h2><div class="rows">${todo.map(a=>`<button class="row-btn att" data-go="${a[4]}" ${a[5]?`data-arg="${a[5]}"`:''}><span class="aicon t-${a[0]}">${svg(a[1])}</span><span class="t"><b>${esc(a[2])}</b></span><span class="r num"><b>${esc(a[3])}</b></span>${chev}</button>`).join('')}</div></section>` : ''}
+  <section class="block"><h2>Remaining by area</h2>${areaSimple(t)}</section>`;
+}
+function areaSimple(t){
+  const areas = Object.entries(t.byArea).sort((a,b)=>b[1].gap-a[1].gap);
+  if(!areas.length) return '<div class="empty">No recharges this month.</div>';
+  return `<div class="rows">${areas.map(([a,v])=>`<button class="row-btn" data-area="${esc(a)}"><span class="t"><b>${esc(a)}</b><small>${esc(collectorOf({area:a})||'No sub-dealer')} · collected ${pctOf(v.paid,v.expected)}%</small></span><span class="r num"><b class="${v.gap?'neg':'pos'}">${v.gap?fmt(v.gap):'Done'}</b></span>${chev}</button>`).join('')}</div>`;
+}
+function vMyDay(){
+  const m = myStats(); const t = m.t; const left = m.s.left;
+  const owing = monthRows().filter(x=>x.s.owes>0);
+  return `
+  <section class="hero">
+    <div class="hero-eye">${esc(m.w)} · ${monthName(S.month)}</div>
+    <div class="hero-cap" style="margin-top:8px">Balance left in your panel</div>
+    <div class="hero-big num ${left<0?'negl':''}">${fmt(left)}</div>
+    ${left<0?'<div class="hero-sub">Records are short. Ask the owner to check your last balance.</div>':''}
+    <div class="hstats num">
+      <button data-go="cash" data-arg="collect"><span>To collect</span><b class="${t.owes?'warnl':''}">${fmt(t.owes)}</b></button>
+      <button data-go="cash" data-arg="hand"><span>Cash with you</span><b>${fmt(m.hand)}</b></button>
+    </div>
+    <div class="hero-acts"><button class="hbtn pri" data-act="pay">${svg('pay')}Record payment</button><button class="hbtn" data-act="hand" ${m.hand?'':'disabled'}>${svg('hand')}Hand over</button><button class="hbtn" data-act="import">${svg('import')}Import</button></div>
+  </section>
+  <section class="block"><div class="block-h"><h2>Collect</h2><button class="linkbtn" data-go="cash" data-arg="collect">See all ${owing.length}</button></div>
+    <div class="rows">${collectList(owing.slice(0,5), {empty:'Everyone has paid.'})}</div></section>
+  <section class="block"><div class="block-h"><h2>Renew this week</h2><button class="linkbtn" data-go="customers" data-arg="expiring">See all ${m.expiring.length}</button></div>
+    <div class="rows">${m.expiring.slice(0,5).map(c=>`<button class="row-btn" data-cust="${esc(c.u)}"><span class="t"><b>${esc(c.name)}</b><small>${esc(c.mobile||c.area)}</small></span><span class="r st st-expiring">${dayLabel(expiryOf(c))}</span>${chev}</button>`).join('') || '<div class="empty">No renewals due this week.</div>'}</div></section>
+  <details class="more block"><summary>My balance history ›</summary>${balanceTable(m.w, 4)}</details>`;
+}
+function vCustomers(){
+  const pi = payIndex(); const own = isOwner();
+  const base = S.customers.filter(c=>inScope(c));
+  const info = Object.fromEntries(base.map(c=>[c.u, {st:custStatus(c), owes:custOwes(c.u,pi), exp:expiryOf(c)}]));
+  const isExp = u => info[u].st==='expired' || info[u].st==='inactive';
+  let F = base.filter(c=>(ui.cfa==='all'||c.area===ui.cfa) && (ui.cfd==='all'||(c.dealer||'—')===ui.cfd));
+  if(ui.cq){ const q = ui.cq.toLowerCase(); F = F.filter(c=>(c.name+' '+c.u+' '+(c.mobile||'')).toLowerCase().includes(q)); }
+  const counts = {all:F.length, owes:F.filter(c=>info[c.u].owes>0).length, expiring:F.filter(c=>info[c.u].st==='expiring').length, expired:F.filter(c=>isExp(c.u)).length, active:F.filter(c=>info[c.u].st==='active').length, noarea:F.filter(c=>c.area==='Unassigned').length};
+  if(!['all','owes','expiring','expired','active','noarea'].includes(ui.cf)) ui.cf='all';
+  const L = F.filter(c=>(ui.cf==='all') || (ui.cf==='owes'&&info[c.u].owes>0) || (ui.cf===info[c.u].st) || (ui.cf==='expired'&&isExp(c.u)) || (ui.cf==='noarea'&&c.area==='Unassigned'))
+    .sort((a,b)=>info[b.u].owes-info[a.u].owes || a.name.localeCompare(b.name));
+  const areas = [...new Set(base.map(c=>c.area))].sort();
+  const tile = (k,l,cls) => `<button class="tile2 ${ui.cf===k?'on':''}" data-cf="${k}"><span>${l}</span><b class="${cls||''}">${counts[k]}</b></button>`;
+  return `
+  <div class="ph"><div><h1>${own?'Customers':'My customers'}</h1></div>${own?`<button class="btn btn-sm btn-p" data-act="addCustomer">${svg('plus')}Add</button>`:''}</div>
+  <div class="tiles2 t4 num">${tile('all','All')}${tile('owes','Unpaid','neg')}${tile('expiring','Expiring','warn')}${tile('expired','Expired')}</div>
+  <div class="filters2"><input class="inp" id="cq" type="search" placeholder="Search name or mobile" value="${esc(ui.cq)}" autocomplete="off" aria-label="Search customers">
+    <select class="sel" id="cfa" aria-label="Area"><option value="all">All areas</option>${areas.map(a=>`<option ${ui.cfa===a?'selected':''}>${esc(a)}</option>`).join('')}</select></div>
+  ${ui.cf!=='all'||ui.cfa!=='all'||ui.cq?`<button class="linkbtn" data-cfclear="all" style="align-self:flex-start" data-cfall="1">Clear filters</button>`:''}
+  <div class="rows">${L.length ? L.slice(0,100).map(c=>{const i=info[c.u];return `<button class="crow num" data-cust="${esc(c.u)}">
+      <span class="n">${esc(c.name)}</span><span class="a ${i.owes?'neg':'faint'}">${i.owes?fmt(i.owes):'Paid'}</span>
+      <span class="m">${esc(c.area)} · ${esc(c.pkg||'—')}</span><span class="st st-${i.st}">${CST[i.st]}${i.exp?' · '+dayLabel(i.exp):''}</span></button>`}).join('') : '<div class="empty">No customers found.</div>'}</div>`;
+}
+function vDealers(){
+  const names = S.dealers.map(d=>d.name);
+  const m = S.month;
+  return `
+  <div class="ph"><div><h1>Sub-dealers</h1></div><button class="btn btn-sm btn-p" data-act="addLoad">${svg('plus')}Add balance</button></div>
+  <div class="list-gap">${S.dealers.map(d=>{
+    const s = dealerStats(d.name); const h = balanceHistory(d.name); const cur = h.find(r=>r.m===m) || {credited:0, used:0};
+    const p = dealerPlan(d.name); const areas = S.areas.filter(a=>a.collector===d.name).map(a=>a.name);
+    return `<section class="dcard num">
+      <div class="dc-top"><div><b>${esc(d.name)}</b><small>${esc(areas.join(', ')||'No areas')}</small></div><button class="btn btn-sm" data-load="${esc(d.name)}">Add balance</button></div>
+      <div class="dc-stats"><div><span>Credited (${MONTHS[+m.slice(5)-1]})</span><b>${fmt(cur.credited)}</b></div><div><span>Used (${MONTHS[+m.slice(5)-1]})</span><b>${fmt(cur.used)}</b></div><div><span>Left now</span><b class="${s.left<0?'neg':'pos'}">${fmt(s.left)}</b></div></div>
+      ${s.left<0 ? `<div class="dc-note bad">${fmt(-s.left)} credit is missing from records <button class="linkbtn" data-missing="${esc(d.name)}" data-amt="${-s.left}">Record it</button></div>`
+                 : p.suggest!=null ? `<div class="dc-note">Next load: <b>${fmt(p.suggest)}</b> (${fmt(s.left)} left will carry over)</div>` : ''}
+      <details class="more"><summary>Balance history ›</summary>${balanceTable(d.name, 6)}</details>
+    </section>`; }).join('')}</div>`;
 }
 
 /* ---------- IMPORT (monthly update: many files, each recognised and routed) ---------- */
@@ -2131,7 +2252,7 @@ document.addEventListener('click', e=>{
   if(d.status){ ui.status = d.status; ui.age=null; render(); return; }
   if(d.cf){ ui.cf = d.cf; render(); return; }
   if(d.cfset){ const [k,v] = d.cfset.split(':'); ui[k] = ui[k]===v ? 'all' : v; render(); return; }
-  if(d.cfclear){ if(d.cfclear==='all'){ ui.cfa=ui.cfd=ui.cfp='all'; ui.cq=''; } else if(d.cfclear==='cq') ui.cq=''; else ui[d.cfclear]='all'; render(); return; }
+  if(d.cfclear){ if(d.cfclear==='all'){ ui.cfa=ui.cfd=ui.cfp='all'; ui.cq=''; ui.cf='all'; } else if(d.cfclear==='cq') ui.cq=''; else ui[d.cfclear]='all'; render(); return; }
   if(d.dfil){ ui.dfil = d.dfil; render(); return; }
   if(d.dper){ ui.dper = d.dper; render(); return; }
   if(d.cashtab){ ui.cashTab = d.cashtab; render(); return; }
